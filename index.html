@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kam dabar langas?</title>
+  <meta charset="UTF-8"/>
+</head>
+<style>
+  ul {
+    list-style-type: none;
+  }
+  a {
+    color: black
+  }
+  h1 {
+    font-family:arial;
+  }
+</style>
+<body align="center">
+  <h1>KAM DABAR LANGAS?</h1>
+  <form>
+  <select name="savaitės diena" id="diena">
+    <option value="pirmadienis">Pirmadienis</option>
+    <option value="antradienis">Antradienis</option>
+    <option value="trečiadienis">Trečiadienis</option>
+    <option value="ketvirtadienis">Ketvirtadienis</option>
+    <option value="penktadienis">Penktadienis</option>
+  </select>
+  <input type="number" id="pamoka" placeholder="pamokos numeris" min="1" max ="8" value="1">
+  <input type="text" id="pavadinimas" placeholder="pamokos pavadinimas" value="langas">
+  </form>
+  <button onclick="vykdyti()">Vykdyti</button>
+
+  <ul id="main-list"></ul>
+
+  <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase-firestore.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
