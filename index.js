@@ -12,6 +12,8 @@ firebase.initializeApp(config);
 const firestore = firebase.firestore();
 const sarasas = document.getElementById("main-list");
 var displayCarouselAnimation = true;
+var debug = false;
+var locked = false;
 
 function vykdyti() {
   var diena = document.getElementById("diena").value;
@@ -22,14 +24,15 @@ function vykdyti() {
 }
 
 function atnaujintiSarasa(diena, pamoka, pavadinimas) {
-  console.log(diena + ", " + pamoka + ", " + pavadinimas);
-  sarasas.innerHTML = '<li class="nebera_pamoku"><a><i>Pilka spalva reiškia, kad tą dieną nebėra pamokų</i></a></li>';
+  if(debug) console.log(diena + ", " + pamoka + ", " + pavadinimas);
   var path = diena + '/' + pamoka.toString() + '/default'; //visos pamokos tuo metu
   var docRef = firestore.collection(path);
 
+  sarasas.innerHTML = '<li class="nebera_pamoku"><a><i>Pilka spalva reiškia, kad tą dieną nebėra pamokų</i></a></li>';
+
   firestore.collection(path).get().then(function(snap) {
     snap.forEach(function(doc) {
-      if(doc.id.includes(pavadinimas)) {
+      if(doc.id.includes(pavadinimas.toLowerCase())) {
         var new_path = path + '/' + doc.id + '/default'; //visi vardai
         firestore.collection(new_path).get().then(function(snap2) {
           snap2.forEach(function(doc2) {
@@ -41,6 +44,7 @@ function atnaujintiSarasa(diena, pamoka, pavadinimas) {
         });
       }
     });
+    locked = false;
   });
 }
 
@@ -55,7 +59,9 @@ Array.from(langeliai).forEach(function(langelis) {
       $("#pamokos-pavadinimas").css("color", "red");
       $("#pamokos-pavadinimas").focus();
       displayCarouselAnimation = false;
-    } else {
+      if(debug) console.log("text not yet edited");
+    } else if(!locked) {
+      locked = true;
       var pavadinimas = $("#pamokos-pavadinimas").text();
       atnaujintiSarasa(dienos[dienos_nr-1], pamokos_nr-1, pavadinimas);
     }

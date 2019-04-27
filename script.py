@@ -7,12 +7,6 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 import datetime
 
-#class Mokinys:
-    #laikotarpis = ""
-    #vardas = ""
-    #nuoroda = ""
-    #pamokos = [[]]
-
 ##############SETUP################
 url = "http://www.vaivorykstesgimnazija.lt/tvarkarastis/2_pusmetis/"
 sav_dienos = ['pirmadienis', 'antradienis', 'trečiadienis', 'ketvirtadienis', 'penktadienis']
