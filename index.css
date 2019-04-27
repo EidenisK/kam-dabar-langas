@@ -1,0 +1,64 @@
+body {
+	background-color: #689b53;
+}
+
+ul {
+	list-style-type: none;
+}
+a {
+	color: black
+}
+.title {
+	font-family:impact;
+	font-style: bold;
+	color: white;
+	font-size: 8vw;
+	text-align: center;
+	display: inline;
+}
+
+#main-table {
+	margin: auto;
+	width: 60vw;
+}
+
+td {
+	font-family: arial;
+	color: white;
+}
+
+tr:not(.no-bg-color) > td:not(.no-bg-color) {
+	background-color: rgba(225, 234, 219, 0.44);
+}
+
+tr:not(.no-bg-color) > td:not(.no-bg-color):hover {
+	background-color: rgba(225, 234, 219, 0.7);
+}
+
+li > a{
+	color: white;
+	text-decoration: none;
+	font-family: arial;
+}
+
+#mobile-select {
+	display: none;
+}
+
+@media screen and (max-width: 600px) {
+	#desktop-select {
+		display: none;
+	}
+	#mobile-select {
+		display: block;
+	}
+}
+
+#pamokos-pavadinimas {
+	display: inline;
+
+}
+
+.nebera_pamoku a {
+	color: #c1c1c1;
+}
