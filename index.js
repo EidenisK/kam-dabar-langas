@@ -16,7 +16,7 @@ var debug = false;
 var locked = false;
 
 function tusciasSarasas() {
-  $('#main-list').html("<li><a>Sąrašas tuščias</a></li>");
+  $('#main-list').html("<li><a>Sąrašas tuščias</a></li><li><a><i>Jeigu manote, kad tai klaida, sutrumpinkite paieškos frazę</i></a></li>");
   locked = false;
   if(debug) console.log("unlocked");
 }
@@ -43,12 +43,14 @@ function atnaujintiSarasa(diena, pamoka, pavadinimas) {
     snap.forEach(function(doc) {
       num_of_doc++;
 
-      if(doc.id.includes(pavadinimas.toLowerCase())) {
+      if(doc.id.toLowerCase().includes(pavadinimas.toLowerCase())) {
         found = true;
         var new_path = path + '/' + doc.id + '/default'; //visi vardai
 
         firestore.collection(new_path).get().then(function(snap2) {
           num_of_doc2 = 0;
+
+          if(snap.size != 1 && !doc.id.toLowerCase().includes("langas")) allText += '<li class="nebera_pamoku"><a><b>' + doc.id + '</b></a></li>';
 
           snap2.forEach(function(doc2) {
             num_of_doc2++;
@@ -69,6 +71,15 @@ function atnaujintiSarasa(diena, pamoka, pavadinimas) {
   });
 }
 
+function tinkaPavadinimas(pavadinimas) {
+  if(pavadinimas.length >= 3) return true;
+  else {
+    $("#pamokos-pavadinimas").css({"color": "red"});
+    $("#main-list").html('<li><a><i>Bent 3 simboliai</i></a></li>');
+    return false;
+  }
+}
+
 var dienos = ['pirmadienis', 'antradienis', 'trečiadienis', 'ketvirtadienis', 'penktadienis'];
 
 //var langeliai = document.getElementsByTagName('td');
@@ -86,7 +97,8 @@ Array.from(langeliai).forEach(function(langelis) {
       if(debug) console.log("locked");
       locked = true;
       var pavadinimas = $("#pamokos-pavadinimas").text();
-      atnaujintiSarasa(dienos[dienos_nr-1], pamokos_nr-1, pavadinimas);
+      if(tinkaPavadinimas(pavadinimas))
+        atnaujintiSarasa(dienos[dienos_nr-1], pamokos_nr-1, pavadinimas);
     }
   });
 });
@@ -103,6 +115,12 @@ $("#pamokos-pavadinimas").bind("click", function() {
   }
   $("#pamokos-pavadinimas").css("color", "white");
   displayCarouselAnimation = false;
+});
+
+$('#pamokos-pavadinimas').bind("paste", function(e) {
+  e.preventDefault();
+  var text = (e.originalEvent || e).clipboardData.getData('text/plain') || prompt("paste something");
+  $("#pamokos-pavadinimas").html(text);
 });
 
 var TxtRotate = function(el, toRotate, period) {
@@ -158,26 +176,6 @@ window.onload = function() {
   }
 };
 
-/*//var langeliai = document.getElementsByTagName('td');
-var langeliai = $("#main-table td");
-Array.from(langeliai).forEach(function(langelis) {
-  var dienos_nr = $(langelis).index(),
-      pamokos_nr = $(langelis).parent().index();
-  langelis.addEventListener("click", function() {
-    if(displayCarouselAnimation) {
-      $("#pamokos-pavadinimas").css("color", "red");
-      $("#pamokos-pavadinimas").focus();
-      displayCarouselAnimation = false;
-      if(debug) console.log("text not yet edited");
-    } else if(!locked) {
-      if(debug) console.log("locked");
-      locked = true;
-      var pavadinimas = $("#pamokos-pavadinimas").text();
-      atnaujintiSarasa(dienos[dienos_nr-1], pamokos_nr-1, pavadinimas);
-    }
-  });
-});*/
-
 var mob_diena, mob_pamoka;
 
 var dienu_langeliai = $("#day-select td");
@@ -205,6 +203,13 @@ Array.from(pamokos_langeliai).forEach(function(langelis) {
     $('#day-select').show();
 
     var pavadinimas = $("#pamokos-pavadinimas").text();
-    atnaujintiSarasa(dienos[mob_diena], mob_pamoka, pavadinimas);
+    if(tinkaPavadinimas(pavadinimas))
+      atnaujintiSarasa(dienos[mob_diena], mob_pamoka, pavadinimas);
   });
+});
+
+$('[contenteditable]').on('paste',function(e) {
+    e.preventDefault();
+    var text = (e.originalEvent || e).clipboardData.getData('text/plain') || prompt('Paste something..');
+    document.execCommand('insertText', false, text);
 });
