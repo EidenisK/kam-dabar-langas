@@ -6,11 +6,12 @@
   <link rel="stylesheet" href="index.css">
   <script src="jquery-3.4.0.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="SHORTCUT ICON" href="langas.ico">
 </head>
 <body align="center">
   <div class="title">KAM DABAR <span id="pamokos-pavadinimas" contenteditable="true" class="txt-rotate" data-period="2000" data-rotate='[ "LANGAS", "MATEMATIKA", "ANGLŲ", "MUZIKA" ]'></span>?</div>
   <div id="mobile-select">
-    <form>
+    <!--<form>
     <select name="savaitės diena" id="diena">
       <option value="pirmadienis">Pirmadienis</option>
       <option value="antradienis">Antradienis</option>
@@ -21,8 +22,27 @@
     <input type="number" id="pamoka" placeholder="pamokos numeris" min="1" max ="8" value="1">
     <input type="text" id="pavadinimas" placeholder="pamokos pavadinimas" value="langas">
     </form>
-    <button onclick="vykdyti()">Vykdyti</button>
+    <button onclick="vykdyti()">Vykdyti</button>-->
+    <table id="day-select">
+      <tr><td>Pirmadienis</td></tr>
+      <tr><td>Antradienis</td></tr>
+      <tr><td>Trečiadienis</td></tr>
+      <tr><td>Ketvirtadienis</td></tr>
+      <tr><td>Penktadienis</td></tr>
+    </table>
+
+    <table id="pamokos-select">
+      <tr><td>1</td></tr>
+      <tr><td>2</td></tr>
+      <tr><td>3</td></tr>
+      <tr><td>4</td></tr>
+      <tr><td>5</td></tr>
+      <tr><td>6</td></tr>
+      <tr><td>7</td></tr>
+      <tr><td>8</td></tr>
+    </table>
   </div>
+
 
   <div id="desktop-select">
     <table id="main-table">

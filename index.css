@@ -1,3 +1,5 @@
+.txt-rotate > .wrap { border-right: 0.08em solid #fff }
+
 body {
 	background-color: #689b53;
 }
@@ -61,4 +63,13 @@ li > a{
 
 .nebera_pamoku a {
 	color: #c1c1c1;
+}
+
+#day-select, #pamokos-select {
+	width: 80vw;
+	margin: auto;
+}
+
+#pamokos-select {
+	display: none;
 }
