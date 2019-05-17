@@ -54,7 +54,7 @@ function atnaujintiSarasa(diena, pamoka, pavadinimas) {
 
           snap2.forEach(function(doc2) {
             num_of_doc2++;
-            allText += '<li ' + (doc2.data().nebera_pamoku ? ' class="nebera_pamoku"' : '') + '><a href="' + doc2.data().nuoroda + '">' + doc2.id + '</a></li>';
+            allText += '<li class="' + (doc2.data().nebera_pamoku ? 'nebera_pamoku' : '') + (doc2.data().mokytojas ? ' mokytojas' : '') + '"><a href="' + doc2.data().nuoroda + '">' + doc2.id + '</a></li>';
 
             if(num_of_doc == snap.size && num_of_doc2 == snap2.size) {
               $("#main-list").html(allText);
