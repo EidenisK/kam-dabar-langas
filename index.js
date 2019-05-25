@@ -21,13 +21,19 @@ function tusciasSarasas() {
   if(debug) console.log("unlocked");
 }
 
+var visi_elementai = [];
+
 function atnaujintiSarasa(diena, pamoka, pavadinimas) {
+  $("#nameSearch").val("");
+  visi_elementai = [];
+
   $("#main-list").html("<li><a>Kraunama...</a></li>");
   if(debug) console.log(diena + ", " + pamoka + ", " + pavadinimas);
 
   var path = diena + '/' + pamoka.toString() + '/default'; //visos pamokos tuo metu
   var docRef = firestore.collection(path);
   var allText = pavadinimas.toLowerCase().includes('langas') ? '<li class="nebera_pamoku"><a><i>Pilka spalva reiškia, kad tą dieną nebėra pamokų</i></a></li>' : '';
+  $("#main-list").innerHTML += allText;
 
   firestore.collection(path).get()
   .catch(function(error) {
@@ -50,14 +56,19 @@ function atnaujintiSarasa(diena, pamoka, pavadinimas) {
         firestore.collection(new_path).get().then(function(snap2) {
           num_of_doc2 = 0;
 
-          if(snap.size != 1 && !doc.id.toLowerCase().includes("langas")) allText += '<li class="nebera_pamoku"><a><b>' + doc.id + '</b></a></li>';
+          if(snap.size != 1 && !doc.id.toLowerCase().includes("langas")) var naujas_elementas = '<li class="nebera_pamoku grupes_pavadinimas"><a><b>' + doc.id + '</b></a></li>';
+          visi_elementai.push(naujas_elementas);
 
           snap2.forEach(function(doc2) {
             num_of_doc2++;
-            allText += '<li class="' + (doc2.data().nebera_pamoku ? 'nebera_pamoku' : '') + (doc2.data().mokytojas ? ' mokytojas' : '') + '"><a href="' + doc2.data().nuoroda + '">' + doc2.id + '</a></li>';
+            var naujas_elementas = '<li class="' + (doc2.data().nebera_pamoku ? 'nebera_pamoku' : '') + (doc2.data().mokytojas ? ' mokytojas' : '') + '"><a href="' + doc2.data().nuoroda + '">' + doc2.id + '</a></li>';
+            visi_elementai.push(naujas_elementas);
+            if(debug) console.log(visi_elementai[visi_elementai.length -1]);
 
             if(num_of_doc == snap.size && num_of_doc2 == snap2.size) {
-              $("#main-list").html(allText);
+              //$("#main-list").html(allText);
+              if(debug) console.log("starting filterNames with " + visi_elementai.length + 'elements');
+              filterNames();
               locked = false;
               if(debug) console.log("unlocked");
               return;
@@ -213,3 +224,19 @@ $('[contenteditable]').on('paste',function(e) {
     var text = (e.originalEvent || e).clipboardData.getData('text/plain') || prompt('Paste something..');
     document.execCommand('insertText', false, text);
 });
+
+function filterNames()
+{
+  if(debug) console.log("filtering names");
+  var ieskomas = $("#nameSearch").val();
+  if($("#nameSearch").val() == null) ieskomas = "";
+  ieskomas.trim();
+  var pridedamas_tekstas;
+  $("#main-list").html( $("#pamokos-pavadinimas").text().toLowerCase().includes('langas') ? '<li class="nebera_pamoku"><a><i>Pilka spalva reiškia, kad tą dieną nebėra pamokų</i></a></li>' : '' );
+  for (var i = 0; i < visi_elementai.length; i++) {
+    if(visi_elementai[i] == undefined) continue;
+    if(ieskomas == "" || visi_elementai[i].toLowerCase().includes(ieskomas.toLowerCase()) || visi_elementai[i].toLowerCase().includes("grupes_pavadinimas")) {
+      document.getElementById("main-list").innerHTML += visi_elementai[i];
+    }
+  }  
+}

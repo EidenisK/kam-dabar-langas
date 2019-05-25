@@ -78,3 +78,17 @@ li > a{
 .mokytojas a {
 	color: #28682A;
 }
+
+#nameSearch {
+	margin-top: 4vh;
+	/*display: none;*/
+	background: none;
+	color: #FFF;
+	border: none;
+	border-bottom: 2px solid green;
+	text-align: center;
+}
+
+#nameSearch::placeholder {
+	color: white;
+}
