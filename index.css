@@ -1,5 +1,9 @@
 .txt-rotate > .wrap { border-right: 0.08em solid #fff }
 
+html {
+	text-align: center;
+}
+
 body {
 	background-color: #689b53;
 }
@@ -81,7 +85,7 @@ li > a{
 
 #nameSearch {
 	margin-top: 4vh;
-	/*display: none;*/
+	display: none;
 	background: none;
 	color: #FFF;
 	border: none;
@@ -91,4 +95,5 @@ li > a{
 
 #nameSearch::placeholder {
 	color: white;
+	opacity: 1;
 }

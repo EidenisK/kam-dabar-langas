@@ -7,6 +7,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 import datetime
 import time
+from tkinter import *
 
 ##############SETUP################
 url = "http://www.vaivorykstesgimnazija.lt/tvarkarastis/2_pusmetis/"
@@ -70,7 +71,7 @@ def nuskaityti_viena(NUORODA, lygis):
                 })
 
                 current += 1
-                print (str(current) + '/40' + SPACES, end="\r")
+                print (str(current) + '/45' + SPACES, end="\r")
 
         antra_pabaiga = datetime.datetime.now()
         #print("Upload complete in additional " + str(antra_pabaiga - pirma_pabaiga))
@@ -109,25 +110,69 @@ def kelis(start_idx, end_idx):
     soup = BeautifulSoup(dokumentas, 'lxml')
 
     nuoroda = soup.find_all('a')
+    if start_idx == -1:
+        start_idx = 0
+    if end_idx == -1:
+        end_idx = len(nuoroda)
+
     for i in range(start_idx, end_idx):
-        print(str(i-start_idx+1) + '/' + str(end_idx-start_idx) + SPACES)
+        print(str(i-start_idx+1) + '/' + str(end_idx-start_idx) + SPACES, end="\r\r")
         nuskaityti_viena(url + nuoroda[i]['href'], 0)
 
     f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "a")
     f.write("kelis " + str(start_idx) + "—" + str(end_idx) + '\n')
-    f.close() 
+    f.close()
 
 def help():
     print("NAUDOJIMAS:\n'scrape.py <nuoroda> [-m: mokytojas]'\n'scrape.py <pradinis idx> <galinis idx> [-m: mokytojas]'")
 
+class Application(Frame):
+    nuorodosTekstas = ""
+    def say_hi(self):
+        print(self.nuorodosTekstas)
+
+    def createWidgets(self):
+        self.QUIT = Button(self)
+        self.QUIT["text"] = "QUIT"
+        self.QUIT['fg'] = 'red'
+        self.QUIT['command'] = self.quit
+        self.QUIT.pack({"side":"left"})
+
+        self.nuoroda = Entry(self)
+        self.nuoroda.pack()
+
+        self.turimasTekstas = StringVar()
+        self.turimasTekstas.set("nuoroda...")
+        self.nuoroda['textvariable'] = self.turimasTekstas
+        self.nuoroda.bind('<Key-Return>', self.print_contents)
+
+        self.hi_there = Button(self)
+        self.hi_there["text"] = "rodyti teksta"
+        self.hi_there["command"] = self.print_contents
+        self.hi_there.pack({"side": "left"})
+
+    def print_contents(self, event=False):
+        print("nuoroda dabar yra -->" + self.turimasTekstas.get())
+
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.pack()
+        self.createWidgets()
 
 ##################MAIN######################
+
 if len(sys.argv) == 2:
-    if(sys.argv[1] == 'log'):
+    if sys.argv[1] == 'log':
         f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "r")
         for x in f:
             print(x + '\n')
-        f.close();
+        f.close()
+    elif sys.argv[1] == 'visi_1459':
+        kelis(-1, -1)
+    elif sys.argv[1] == 'clearlog':
+        f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "w")
+        print(" ")
+        f.close()
     else:
         viena(sys.argv[1]) #scrape.py <nuoroda>
 elif len(sys.argv) == 3:
@@ -142,5 +187,10 @@ elif len(sys.argv) == 4:
         mokytojas = (sys.argv[3] == '-m')
         kelis(sys.argv[1], sys.argv[2]) 
     else: help()
-else: help()
+else: 
+    root = Tk()
+    app = Application(master=root)
+    app.mainloop()
+    root.destroy()
+
 #############################

@@ -71,6 +71,7 @@ function atnaujintiSarasa(diena, pamoka, pavadinimas) {
               filterNames();
               locked = false;
               if(debug) console.log("unlocked");
+              $("#nameSearch").show();
               return;
             }
           });
