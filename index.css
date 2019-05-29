@@ -52,12 +52,33 @@ li > a{
 	display: none;
 }
 
+#nameSearch {
+	margin-top: 4vh;
+	display: none;
+	background: none;
+	color: #FFF;
+	border: none;
+	border-bottom: 2px solid green;
+	text-align: center;
+	width: 40vw;
+	font-size: 16pt;
+}
+
 @media screen and (max-width: 600px) {
 	#desktop-select {
 		display: none;
 	}
 	#mobile-select {
 		display: block;
+	}
+	td {
+		height: 7vh;
+	}
+	table {
+		border-spacing: 0.5vh;
+	}
+	#nameSearch {
+		width: 70vw;
 	}
 }
 
@@ -81,16 +102,6 @@ li > a{
 
 .mokytojas a {
 	color: #28682A;
-}
-
-#nameSearch {
-	margin-top: 4vh;
-	display: none;
-	background: none;
-	color: #FFF;
-	border: none;
-	border-bottom: 2px solid green;
-	text-align: center;
 }
 
 #nameSearch::placeholder {

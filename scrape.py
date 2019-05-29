@@ -19,7 +19,7 @@ db = firestore.client()
 ###################################
 
 ###################################
-def nuskaityti_viena(NUORODA, lygis):
+def nuskaityti_viena(NUORODA, lygis, progress="", salinti=False):
     try:
         pradzia = datetime.datetime.now()
         dokumentas = str(urllib.request.urlopen(NUORODA).read(), 'windows-1257')
@@ -64,14 +64,23 @@ def nuskaityti_viena(NUORODA, lygis):
 
                 path = sav_dienos[diena-1] + '/' + str(pamoka-2) + '/default/' + pamokos[pamoka][diena] + '/default/' + VARDAS;
                 doc_ref = db.document(path)
-                doc_ref.set({
-                    u'mokytojas': mokytojas,
-                    u'nuoroda': NUORODA,
-                    u'nebera_pamoku': nebera_pamoku
-                })
+                if salinti:
+                    doc_ref.delete()
+                else:
+                    doc_ref.set({
+                        u'mokytojas': mokytojas,
+                        u'nuoroda': NUORODA,
+                        u'nebera_pamoku': nebera_pamoku
+                    })
 
                 current += 1
-                print (str(current) + '/45' + SPACES, end="\r")
+                load_str = progress + ' ['
+                for i in range(0, current):
+                    load_str += '*'
+                for i in range(current, 45):
+                    load_str += '-'
+
+                print(load_str + ']' + SPACES, end="\r")
 
         antra_pabaiga = datetime.datetime.now()
         #print("Upload complete in additional " + str(antra_pabaiga - pirma_pabaiga))
@@ -86,9 +95,9 @@ def nuskaityti_viena(NUORODA, lygis):
 
 ###########################################
 
-def viena(nuoroda):
+def viena(nuoroda, salinti=False):
     if "http" in nuoroda:
-        nuskaityti_viena(nuoroda, 0)
+        nuskaityti_viena(nuoroda, 0, salinti)
     else:
         print(nuoroda)
         dokumentas = str(urllib.request.urlopen(url).read(), 'windows-1257')
@@ -96,7 +105,7 @@ def viena(nuoroda):
 
         nuorodos = soup.find_all('a')
         for i in range(len(nuorodos)):
-            if nuoroda in nuorodos[i].text:
+            if nuoroda.lower().strip() in nuorodos[i].text.lower().strip():
                 print(nuorodos[i].text)
                 print(i)
                 break
@@ -116,8 +125,8 @@ def kelis(start_idx, end_idx):
         end_idx = len(nuoroda)
 
     for i in range(start_idx, end_idx):
-        print(str(i-start_idx+1) + '/' + str(end_idx-start_idx) + SPACES, end="\r\r")
-        nuskaityti_viena(url + nuoroda[i]['href'], 0)
+        progress = str(i-start_idx+1) + '/' + str(end_idx-start_idx)
+        nuskaityti_viena(url + nuoroda[i]['href'], 0, progress)
 
     f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "a")
     f.write("kelis " + str(start_idx) + "—" + str(end_idx) + '\n')
@@ -132,27 +141,76 @@ class Application(Frame):
         print(self.nuorodosTekstas)
 
     def createWidgets(self):
-        self.QUIT = Button(self)
-        self.QUIT["text"] = "QUIT"
-        self.QUIT['fg'] = 'red'
-        self.QUIT['command'] = self.quit
-        self.QUIT.pack({"side":"left"})
+        Label(self,text="Kam dabar langas?").grid(row=0,columnspan=4)
 
-        self.nuoroda = Entry(self)
-        self.nuoroda.pack()
+        Label(self, text="Nuoroda:").grid(sticky=E)
+        self.nuoroda_entry = Entry(self)
+        self.nuoroda_entry.grid(row=1, column=1, columnspan=3)
 
-        self.turimasTekstas = StringVar()
-        self.turimasTekstas.set("nuoroda...")
-        self.nuoroda['textvariable'] = self.turimasTekstas
-        self.nuoroda.bind('<Key-Return>', self.print_contents)
+        Label(self, text="Vardas:").grid(sticky=E)
+        self.vardas_entry = Entry(self)
+        self.vardas_entry.grid(row=2, column=1, columnspan=3)
 
-        self.hi_there = Button(self)
-        self.hi_there["text"] = "rodyti teksta"
-        self.hi_there["command"] = self.print_contents
-        self.hi_there.pack({"side": "left"})
+        Label(self, text="Nuo:").grid(sticky=E)
+        self.nuo_entry = Entry(self, width=5)
+        self.nuo_entry.grid(row=3, column=1)
+        Label(self, text="Iki:").grid(row=3, column=2, sticky=E)
+        self.iki_entry = Entry(self, width=5)
+        self.iki_entry.grid(row=3, column=3)
 
-    def print_contents(self, event=False):
-        print("nuoroda dabar yra -->" + self.turimasTekstas.get())
+        self.mok_var = IntVar()
+        Label(self, text="Mokytojas:").grid(row=4, sticky=E)
+        self.mokytojas_checkbutton = Checkbutton(self, variable=self.mok_var)
+        self.mokytojas_checkbutton.grid(row=4, column=1)
+        self.vykdyti_button = Button(self,text="Vykdyti")
+        self.vykdyti_button.grid(row=4, column=2, columnspan=2)
+        self.vykdyti_button["command"] = self.vykdytiKomandas
+
+        self.output_text = Text(self, height=5, width=30)
+        self.output_text.grid(row=5,columnspan=4)
+
+        self.logs_button = Button(self, text="Logs")
+        self.logs_button.grid(row=6)
+        self.logs_button["command"] = self.logs
+        self.clearlogs_button = Button(self, text="Clearlogs")
+        self.clearlogs_button.grid(row=6, column=2)
+        self.clearlogs_button["command"] = self.clearlogs
+        self.visus_button = Button(self, text="Visus")
+        self.visus_button.grid(row=6, column=3, columnspan=2)
+        self.visus_button["command"] = self.visus
+
+    def vykdytiKomandas(self, event=False):
+        mokytojas = self.mok_var.get()
+
+        if self.nuoroda_entry.get() != "":
+            self.output_text.insert(END, "nuoroda: " + self.nuoroda_entry.get() + '\n')
+            self.nuoroda_entry.delete(0, 'end')
+            viena(self.nuoroda_entry.get())
+        elif self.vardas_entry.get() != "":
+            self.output_text.insert(END, "vardas: " + self.vardas_entry.get() + '\n')
+            self.vardas_entry.delete(0, 'end')
+            viena(self.vardas_entry.get())
+        elif self.nuo_entry.get() != "" and self.iki_entry.get() != "" and self.nuo_entry.get().isnumeric() and self.iki_entry.get().isnumeric():
+            self.output_text.insert(END, "nuo: " + self.nuo_entry.get() + " iki: " + self.iki_entry.get() + '\n')
+            self.nuo_entry.delete(0, 'end')
+            self.iki_entry.delete(0, 'end')
+            kelis(int(self.nuo_entry.get()), int(self.iki_entry.get()))
+        else: 
+            self.output_text.insert(END, "klaida\n")
+
+    def logs(self, event=False):
+        f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "r")
+        for x in f:
+            print(x + '\n')
+        f.close()
+
+    def clearlogs(self, event=False):
+        f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "w")
+        print(" ")
+        f.close()
+
+    def visus(self, event=False):
+        kelis(-1, -1)
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -179,16 +237,20 @@ elif len(sys.argv) == 3:
     if sys.argv[1].isnumeric() and sys.argv[2].isnumeric():
         kelis(int(sys.argv[1]), int(sys.argv[2])) #scrape.py <start> <end>
     elif not sys.argv[1].isnumeric() and not sys.argv[2].isnumeric():
-        mokytojas = (sys.argv[2] == '-m')
-        viena(sys.argv[1]) #scrape.py <nuoroda> -m
+        if(sys.argv[2] == '-m'):
+            mokytojas = True
+            viena(sys.argv[1]) #scrape.py <nuoroda> -m
+        if(sys.argv[2] == '-r'):
+            viena(sys.argv[1], True)
     else: help()
 elif len(sys.argv) == 4: 
-    if isinstance(sys.argv[1], int) and isinstance(sys.argv[2], int) and isinstance(sys.argv[3], str):
+    if sys.argv[1].isnumeric() and sys.argv[2].isnumeric() and not sys.argv[3].isnumeric():
         mokytojas = (sys.argv[3] == '-m')
-        kelis(sys.argv[1], sys.argv[2]) 
+        kelis(int(sys.argv[1]), int(sys.argv[2])) 
     else: help()
 else: 
     root = Tk()
+    root.wm_protocol("WM_DELETE_WINDOW", root.quit)
     app = Application(master=root)
     app.mainloop()
     root.destroy()
