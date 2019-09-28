@@ -10,7 +10,7 @@ import time
 from tkinter import *
 
 ##############SETUP################
-url = "http://www.vaivorykstesgimnazija.lt/tvarkarastis/2_pusmetis/"
+url = "http://www.vaivorykstesgimnazija.lt/tvarkarastis/tvarkarastis1/"
 SPACES = '                       '
 sav_dienos = ['pirmadienis', 'antradienis', 'trečiadienis', 'ketvirtadienis', 'penktadienis']
 mokytojas = False
@@ -85,34 +85,33 @@ def nuskaityti_viena(NUORODA, lygis, progress="", salinti=False):
         antra_pabaiga = datetime.datetime.now()
         #print("Upload complete in additional " + str(antra_pabaiga - pirma_pabaiga))
         #print("Total time: " + str(antra_pabaiga - pradzia))
-    except:
+        return 0
+    except Exception as e:
+        print(str(e))
         if lygis < 3:
             print('klaida nuskaityme, kartojama...')
             time.sleep(2)
             nuskaityti_viena(NUORODA, lygis +1)
         else:
             print('klaida ties tvarkaraščiu ' + NUORODA)
+            return 1
 
 ###########################################
 
 def viena(nuoroda, salinti=False):
     if "http" in nuoroda:
         nuskaityti_viena(nuoroda, 0, salinti)
+        f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "a")
+        f.write("viena " + nuoroda + '\n')
+        f.close() 
     else:
-        print(nuoroda)
         dokumentas = str(urllib.request.urlopen(url).read(), 'windows-1257')
         soup = BeautifulSoup(dokumentas, 'lxml')
 
         nuorodos = soup.find_all('a')
         for i in range(len(nuorodos)):
             if nuoroda.lower().strip() in nuorodos[i].text.lower().strip():
-                print(nuorodos[i].text)
-                print(i)
-                break
-
-    f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "a")
-    f.write("viena " + nuoroda + '\n')
-    f.close() 
+                print(str(i) + ": " + nuorodos[i].text)
 
 def kelis(start_idx, end_idx):
     dokumentas = str(urllib.request.urlopen(url).read(), 'windows-1257')
@@ -124,10 +123,13 @@ def kelis(start_idx, end_idx):
     if end_idx == -1:
         end_idx = len(nuoroda)
 
+    klaidu_sk = 0
+
     for i in range(start_idx, end_idx):
         progress = str(i-start_idx+1) + '/' + str(end_idx-start_idx)
-        nuskaityti_viena(url + nuoroda[i]['href'], 0, progress)
+        klaidu_sk += nuskaityti_viena(url + nuoroda[i]['href'], 0, progress)
 
+    print("Total errors: " + str(klaidu_sk) + SPACES + SPACES)
     f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "a")
     f.write("kelis " + str(start_idx) + "—" + str(end_idx) + '\n')
     f.close()
@@ -221,16 +223,18 @@ class Application(Frame):
 
 if len(sys.argv) == 2:
     if sys.argv[1] == 'log':
-        f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "r")
-        for x in f:
-            print(x + '\n')
-        f.close()
+        print(open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "r").read())
     elif sys.argv[1] == 'visi_1459':
         kelis(-1, -1)
     elif sys.argv[1] == 'clearlog':
         f = open("C:/Users/DrFlarre/Documents/GitHub/kam-dabar-langas/log.txt", "w")
-        print(" ")
         f.close()
+        print("logs cleared")
+    elif sys.argv[1].isnumeric():
+        dokumentas = str(urllib.request.urlopen(url).read(), 'windows-1257')
+        soup = BeautifulSoup(dokumentas, 'lxml')
+        nuoroda = soup.find_all('a')
+        print(nuoroda[int(sys.argv[1])].text)
     else:
         viena(sys.argv[1]) #scrape.py <nuoroda>
 elif len(sys.argv) == 3:
