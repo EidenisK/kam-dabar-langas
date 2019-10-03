@@ -108,3 +108,12 @@ li > a{
 	color: white;
 	opacity: 1;
 }
+
+#useCounter {
+	color: white;
+	position: absolute;
+	text-align: left;
+	font-size: 12pt;
+	left:20;
+	bottom: 0;
+}

@@ -30,6 +30,9 @@ function atnaujintiSarasa(diena, pamoka, pavadinimas) {
   $("#main-list").html("<li><a>Kraunama...</a></li>");
   if(debug) console.log(diena + ", " + pamoka + ", " + pavadinimas);
 
+  var dataRef = firestore.doc("data/uses");
+  dataRef.update({"n": firebase.firestore.FieldValue.increment(1)});
+
   var path = diena + '/' + pamoka.toString() + '/default'; //visos pamokos tuo metu
   var docRef = firestore.collection(path);
   var allText = pavadinimas.toLowerCase().includes('langas') ? '<li class="nebera_pamoku"><a><i>Pilka spalva reiškia, kad tą dieną nebėra pamokų</i></a></li>' : '';
@@ -186,6 +189,11 @@ window.onload = function() {
       new TxtRotate(elements[i], JSON.parse(toRotate), period);
     }
   }
+
+  var useRef = firestore.doc("data/uses");
+  useRef.get().then(function(doc) {
+    document.getElementById("useCounter").innerHTML = doc.data().n;
+  });
 };
 
 var mob_diena, mob_pamoka;
